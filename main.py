@@ -1,4 +1,3 @@
-from curses import wrapper
 import curses
 import json
 import pygame       # YES I USE PYGAME WHY NOT
@@ -19,26 +18,54 @@ if r.status_code != 200:
 
 # loads data
 musics = json.loads(r.text)
-list_of_musics = musics.itervalues()
+for k, v in musics.items():
+    list_of_musics.append(v)
 
 # Initialize Curses
-stdscr = curses.initscr()
+s = curses.initscr()
 curses.noecho()
 curses.cbreak()
-stdscr.keypad(True)
+s.keypad(True)
 
 
-def main(stdscr):
-    # Clear screen
-    stdscr.clear()
+def main(s):
+    selected = 0
+    while 1:
+        curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_WHITE)
+        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        s = curses.initscr()
+        # Clear screen
+        s.clear()
+        curses.curs_set(0)
+        rows, cols = s.getmaxyx()
 
-    # This raises ZeroDivisionError when i == 10.
-    for i in range(0, 11):
-        v = i-10
-        stdscr.addstr(i, 0, '10 divided by {} is {}'.format(v, 10/v))
+        s.attron(curses.color_pair(1))
+        # Draw TeamMusic
+        s.addstr(0, 0, " " * (int(cols/2)-(int(len("TeamMusic") / 2))) + "TeamMusic" + " " * (int(cols/2) - (int(len("TeamMusic") / 2))))
+        s.addstr(1, 0, " " * cols)
+        s.attroff(curses.color_pair(1))
 
-    stdscr.refresh()
-    stdscr.getkey()
+        s.attron(curses.color_pair(2))
+        s.addstr(3, 0, "Latest Musics:")
+        s.attron(curses.color_pair(2))
+
+        # Draw the musics
+        musicpos = 3
+        for music in list_of_musics:
+            if musicpos == rows - 3:
+                break
+            musicpos += 1
+            musicname = music["name"]
+            if cols <= len(musicname):
+                musicname = musicname[:len(musicname) - (len(musicname)-cols-2)]
+            s.addstr(musicpos, 0, " " + str(musicpos-2) + ". " + musicname)
+
+        key = s.getch()
+        if key == curses.KEY_DOWN:
+            selected += 1
+
+        s.refresh()
+        s.getch()
 
 
-wrapper(main)
+curses.wrapper(main)
