@@ -36,6 +36,7 @@ def main(s):
     lasttime = 0
     fps = 0
     while 1:
+<<<<<<< HEAD
         frames += 1
         if screen == "home":
             curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_WHITE)
@@ -88,6 +89,43 @@ def main(s):
             lasttime += 1
             fps = frames
             frames = 0
+=======
+        curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_WHITE)
+        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        s = curses.initscr()
+        # Clear screen
+        s.clear()
+        curses.curs_set(0)
+        rows, cols = s.getmaxyx()
+
+        s.attron(curses.color_pair(1))
+        # Draw TeamMusic
+        s.addstr(0, 0, " " * (int(cols/2)-(int(len("TeamMusic") / 2))) + "TeamMusic CLI" + " " * (int(cols/2) - (int(len("TeamMusic") / 2))))
+        s.addstr(1, 0, " " * cols)
+        s.attroff(curses.color_pair(1))
+
+        s.attron(curses.color_pair(2))
+        s.addstr(3, 0, "Latest Musics:")
+        s.attron(curses.color_pair(2))
+
+        # Draw the musics
+        musicpos = 3
+        for music in list_of_musics:
+            if musicpos == rows - 3:
+                break
+            musicpos += 1
+            musicname = music["name"]
+            if cols <= len(musicname):
+                musicname = musicname[:len(musicname) - (len(musicname)-cols-2)]
+            s.addstr(musicpos, 0, " " + str(musicpos-2) + ". " + musicname)
+
+        key = s.getch()
+        if key == curses.KEY_DOWN:
+            selected += 1
+
+        s.refresh()
+        s.getch()
+>>>>>>> 3c75de2cbe38a7ce325c90a208d538178fece63c
 
 
 curses.wrapper(main)
