@@ -41,7 +41,7 @@ def main(s):
 
         s.attron(curses.color_pair(1))
         # Draw TeamMusic
-        s.addstr(0, 0, " " * (int(cols/2)-(int(len("TeamMusic") / 2))) + "TeamMusic" + " " * (int(cols/2) - (int(len("TeamMusic") / 2))))
+        s.addstr(0, 0, " " * (int(cols/2)-(int(len("TeamMusic") / 2))) + "TeamMusic CLI" + " " * (int(cols/2) - (int(len("TeamMusic") / 2))))
         s.addstr(1, 0, " " * cols)
         s.attroff(curses.color_pair(1))
 
