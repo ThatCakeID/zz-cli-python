@@ -2,6 +2,7 @@ import curses
 import json
 import pygame       # YES I USE PYGAME WHY NOT
 import requests
+import time
 
 # Init pygame for playing music
 pygame.init()
@@ -29,43 +30,64 @@ s.keypad(True)
 
 
 def main(s):
-    selected = 0
+    selected = 1
+    screen = "home"
+    frames = 0
+    lasttime = 0
+    fps = 0
     while 1:
-        curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_WHITE)
-        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        s = curses.initscr()
-        # Clear screen
-        s.clear()
-        curses.curs_set(0)
-        rows, cols = s.getmaxyx()
+        frames += 1
+        if screen == "home":
+            curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_WHITE)
+            curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
+            s = curses.initscr()
+            # Clear screen
+            s.clear()
+            curses.curs_set(0)
+            rows, cols = s.getmaxyx()
 
-        s.attron(curses.color_pair(1))
-        # Draw TeamMusic
-        s.addstr(0, 0, " " * (int(cols/2)-(int(len("TeamMusic") / 2))) + "TeamMusic" + " " * (int(cols/2) - (int(len("TeamMusic") / 2))))
-        s.addstr(1, 0, " " * cols)
-        s.attroff(curses.color_pair(1))
+            s.attron(curses.color_pair(1))
+            # Draw TeamMusic
+            s.addstr(0, 0, " " * (int(cols/2)-(int(len("TeamMusic") / 2))) + "TeamMusic" + " " * (int(cols/2) - (int(len("TeamMusic") / 2))))
+            s.addstr(0, 0, "FPS: " + str(fps))
+            s.addstr(1, 0, " " * cols)
+            s.addstr(rows-1, 0, " " * (cols-1))
+            s.addstr(rows - 1, 0, "H: SHOWS HELP MANUAL")
+            s.attroff(curses.color_pair(1))
 
-        s.attron(curses.color_pair(2))
-        s.addstr(3, 0, "Latest Musics:")
-        s.attron(curses.color_pair(2))
+            s.attron(curses.color_pair(2))
+            s.addstr(3, 0, "Latest Musics:")
+            s.attron(curses.color_pair(2))
 
-        # Draw the musics
-        musicpos = 3
-        for music in list_of_musics:
-            if musicpos == rows - 3:
-                break
-            musicpos += 1
-            musicname = music["name"]
-            if cols <= len(musicname):
-                musicname = musicname[:len(musicname) - (len(musicname)-cols-2)]
-            s.addstr(musicpos, 0, " " + str(musicpos-2) + ". " + musicname)
+            # Draw the musics
+            musicpos = 3
+            for music in list_of_musics:
+                if musicpos == rows - 3:
+                    break
+                musicpos += 1
+                musicname = music["name"]
+                if cols <= len(musicname):
+                    musicname = musicname[:len(musicname) - (len(musicname)-cols-2)]
 
-        key = s.getch()
-        if key == curses.KEY_DOWN:
-            selected += 1
+                if selected == (musicpos-3):
+                    s.attron(curses.color_pair(1))
+                s.addstr(musicpos, 0, " " + str(musicpos-3) + ". " + musicname)
+                if selected == (musicpos-3):
+                    s.attroff(curses.color_pair(1))
 
-        s.refresh()
-        s.getch()
+            key = s.getch()
+            if key == curses.KEY_DOWN and not selected >= len(list_of_musics):
+                selected += 1
+            elif key == curses.KEY_UP and not selected <= 0:
+                selected -= 1
+
+            s.refresh()
+            s.getch()
+
+        if lasttime != int(time.time()):
+            lasttime += 1
+            fps = frames
+            frames = 0
 
 
 curses.wrapper(main)
