@@ -2,7 +2,6 @@ import curses
 import json
 import pygame       # YES I USE PYGAME WHY NOT
 import requests
-import time
 
 # Init pygame for playing music
 pygame.init()
@@ -29,36 +28,65 @@ curses.cbreak()
 s.keypad(True)
 
 
+def toast(text, screen, rows, cols):
+    # Draws a toast
+    s.attron(curses.color_pair(3))
+    screen.addstr(int(rows / 2) - 2, int((cols / 2) - len(text) / 2), " " * (len(text) + 4))
+    screen.addstr(int(rows / 2) - 2, int(cols / 2), "(!)")
+    s.attroff(curses.color_pair(3))
+    s.attron(curses.color_pair(1))
+    screen.addstr(int(rows / 2) - 1, int((cols / 2) - len(text) / 2), " " * (len(text) + 4))
+    screen.addstr(int(rows / 2), int((cols / 2) - len(text) / 2), "  " + text + "  ")
+    screen.addstr(int(rows / 2) + 1, int((cols / 2) - len(text) / 2), " " * (len(text) + 4))
+
+    # Toast will close if you press anything
+    screen.getch()
+    s.attroff(curses.color_pair(1))
+
+
+def flexadd(y, x, text):
+    screen = curses.initscr()
+    rows, cols = screen.getmaxyx()
+    cols -= 1
+    splitted = [text[i:i+cols] for i in range(0, len(text), cols)]
+    for i, txt in enumerate(splitted):
+        s.addstr(y+i, x, txt)
+
+
 def main(s):
+    # used to cycle between screens
+    screen_index = 1
+    screens = ["Help", "Home", "Info"]
     selected = 1
-    screen = "home"
-    frames = 0
-    lasttime = 0
-    fps = 0
+    screen = "Home"
+    curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_WHITE)
+    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    curses.init_pair(3, curses.COLOR_RED, curses.COLOR_WHITE)
     while 1:
-        frames += 1
-        if screen == "home":
-            curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_WHITE)
-            curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
-            s = curses.initscr()
-            # Clear screen
-            s.clear()
-            curses.curs_set(0)
-            rows, cols = s.getmaxyx()
+        screen = screens[screen_index]
 
-            s.attron(curses.color_pair(1))
-            # Draw TeamMusic
-            s.addstr(0, 0, " " * (int(cols/2)-(int(len("TeamMusic") / 2))) + "TeamMusic" + " " * (int(cols/2) - (int(len("TeamMusic") / 2))))
-            s.addstr(0, 0, "FPS: " + str(fps))
-            s.addstr(1, 0, " " * cols)
-            s.addstr(rows-1, 0, " " * (cols-1))
-            s.addstr(rows - 1, 0, "H: SHOWS HELP MANUAL")
-            s.attroff(curses.color_pair(1))
+        s = curses.initscr()
+        # Clear screen
+        s.clear()
+        curses.curs_set(0)
+        rows, cols = s.getmaxyx()
 
+        s.attron(curses.color_pair(1))
+        # Draw TeamMusic Header
+        s.addstr(0, 0, " " * (int(cols / 2) - (int(len("ZryteZene - " + screen) / 2))) + "ZryteZene - " + screen + " " * (
+                    int(cols / 2) - (int(len("ZryteZene - " + screen) / 2))))
+        s.addstr(1, 0, " " * cols)
+
+        s.attroff(curses.color_pair(1))
+
+        if screen == "Home":
             s.attron(curses.color_pair(2))
             s.addstr(3, 0, "Latest Musics:")
-            s.attron(curses.color_pair(2))
-
+            s.attroff(curses.color_pair(2))
+            s.attron(curses.color_pair(1))
+            s.addstr(rows - 1, 0, " " * (cols - 1))
+            s.addstr(rows - 1, 0, "RIGHT AND LEFT KEY: CYCLE BETWEEN SCREENS")
+            s.attroff(curses.color_pair(1))
             # Draw the musics
             musicpos = 3
             for music in list_of_musics:
@@ -70,23 +98,79 @@ def main(s):
                     musicname = musicname[:len(musicname) - (len(musicname)-cols-2)]
 
                 if selected == (musicpos-3):
-                    s.attron(curses.color_pair(1))
-                s.addstr(musicpos, 0, " " + str(musicpos-3) + ". " + musicname)
-                if selected == (musicpos-3):
-                    s.attroff(curses.color_pair(1))
-
-            key = s.getch()
-            if key == curses.KEY_DOWN and not selected >= len(list_of_musics):
-                selected += 1
-            elif key == curses.KEY_UP and not selected <= 0:
-                selected -= 1
+                    s.addstr(musicpos, 0, " " + str(musicpos-3) + ". " + musicname, curses.A_STANDOUT)
+                else:
+                    s.addstr(musicpos, 0, " " + str(musicpos - 3) + ". " + musicname)
 
             s.refresh()
-            s.getch()
+            key = s.getch()
+            if key == curses.KEY_DOWN:
+                if not selected >= len(list_of_musics):
+                    selected += 1
+                else:
+                    curses.beep()
+            elif key == curses.KEY_UP:
+                if not selected <= 1:
+                    selected -= 1
+                else:
+                    curses.beep()
+            elif key == curses.KEY_LEFT:
+                if screen_index != 0:
+                    screen_index -= 1
+                else:
+                    curses.beep()
+                    toast("No Screen after this", s, rows, cols)
+            elif key == curses.KEY_RIGHT:
+                if screen_index != len(screens):
+                    screen_index += 1
+                else:
+                    curses.beep()
+                    toast("No Screen after this", s, rows, cols)
+            elif key == 27:
+                curses.endwin()
+                exit(0)
 
-        if lasttime != int(time.time()):
-            lasttime += 1
-            fps = frames
-            frames = 0
+        elif screen == "Help":
+            s.attron(curses.color_pair(1))
+            s.addstr(rows - 1, 0, " " * (cols - 1))
+            s.addstr(rows - 1, 0, "LEFT ARROW KEY: GET BACK")
+            s.attroff(curses.color_pair(1))
+            s.addstr(3, 0, " TeamMusic CLI Help")
+            flexadd(5, 0, "LEFT ARROW AND RIGHT ARROW KEY : CYCLE TROUGH SCREENS")
+
+            s.refresh()
+            key = s.getch()
+            if key == curses.KEY_LEFT:
+                if screen_index != 0:
+                    screen_index -= 1
+                else:
+                    curses.beep()
+                    toast("No Screen after this", s, rows, cols)
+            elif key == curses.KEY_RIGHT:
+                if screen_index != len(screens):
+                    screen_index += 1
+                else:
+                    curses.beep()
+                    toast("No Screen after this", s, rows, cols)
+
+        elif screen == "info":
+            flexadd(3, 0, " ZryteZene is a free music streaming service built in Firebase")
+            s.refresh()
+            key = s.getch()
+            if key == curses.KEY_LEFT:
+                if screen_index != 0:
+                    screen_index -= 1
+                else:
+                    curses.beep()
+                    toast("No Screen after this", s, rows, cols)
+            elif key == curses.KEY_RIGHT:
+                if screen_index != len(screens):
+                    screen_index += 1
+                else:
+                    curses.beep()
+                    toast("No Screen after this", s, rows, cols)
+
+            s.getkey()
+
 
 curses.wrapper(main)
