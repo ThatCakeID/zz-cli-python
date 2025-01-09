@@ -1,7 +1,6 @@
-# TeamMusic CLI
-TeamMusic Command Line Interface (Built in python3)
+![ZryteZene Logo](https://github.com/user-attachments/assets/ada9ea71-136e-43f5-9c52-33755efd341a)
 
-## How to run
-- Install python3
-- Install pygame, and curses
-- Run `python3 main.py`
+# ZryteZene Python (CLI)
+
+## License
+This project is licensed under the [GNU GPL V3](LICENSE) license.
