@@ -1,7 +1,9 @@
-# ZryteZene CLI in Python
+![ZryteZene - Banner](https://github.com/user-attachments/assets/b5620982-b3e6-438b-bf99-c44b42eb485d)
+
+# zz-cli-python
 
 ## Overview
-`zz-cli-python` is a text-based command-line interface written in Python, it uses the `requests` module to communicate with Firebase features via REST, and uses [`python-vlc`](https://pypi.org/project/python-vlc) as it's audio backend.
+`zz-cli-python` is a text-based command-line interface written in Python, it uses the [`requests`](https://pypi.org/project/requests) module to communicate with Firebase features via REST, and uses [`python-vlc`](https://pypi.org/project/python-vlc) as it's audio backend.
 
 > [!NOTE]
 > This client is *read-only*, which means no authentication is required
@@ -18,6 +20,10 @@ Play a song via ID:
 $ zryte-cli stream <id>
 ```
 
+Search a song by it's name:
+```sh
+$ zryte-cli search <name>
+```
 ## Requirements
 - Python 3.10 or greater
 
