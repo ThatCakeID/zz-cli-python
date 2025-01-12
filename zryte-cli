@@ -6,4 +6,4 @@ if [ ! command -v python 2>&1 >/dev/null ]; then
     exit 127
 fi
 
-python zryte-cli.py
+python zryte-cli.py "$@"
