@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Interpreter check; fail if the script cannot find one
+if [ ! command -v python 2>&1 >/dev/null ]; then
+    echo "zryte-cli: Could not find a Python interpreter"
+    exit 127
+fi
+
+python zryte-cli.py
