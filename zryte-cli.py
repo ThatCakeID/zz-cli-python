@@ -82,6 +82,7 @@ def stream(id):
   field_title = fields['title']['stringValue']
   field_url = fields['music_url']['stringValue']
   print("zryte-cli: Tip: Press ESCAPE to stop playback")
+  print("zryte-cli: Tip: Press SPACE to toggle playback")
   print(f"zryte-cli: Now streaming music: {field_title}")
 
   # Initialize VLC instance and play the music URL
@@ -98,6 +99,11 @@ def stream(id):
     except:
       continue
     match keystroke:
+      case key.SPACE:
+        if player.is_playing():
+          player.pause()
+        else:
+          player.play()
       case key.ESC:
         player.stop()
   
