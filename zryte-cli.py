@@ -4,7 +4,7 @@ import tabulate
 import vlc
 
 
-from pynput.keyboard import Key, Listener
+from readchar import readkey, key
 
 
 endpoints = {
@@ -64,21 +64,6 @@ def list(params: dict = { 'pageSize': 512 }, prefix: str = None):
     print("zryte-cli: The list returned empty")
 
 
-def stream_key_pressed(key):
-  match key:
-    # If ESCAPE key is pressed, print key & stop listening to keyboard input
-    case Key.esc:
-      print(f"Pressed: {key}", end='\r')
-      raise Listener.StopException()
-    # Dummy code; nothing to do
-    case _:
-      pass
-
-
-def stream_key_released(key):
-  print('\033[K', end='\r')
-
-
 def stream(id):
   global endpoints, firestore
 
@@ -96,17 +81,29 @@ def stream(id):
   fields = request.json()['fields']
   field_title = fields['title']['stringValue']
   field_url = fields['music_url']['stringValue']
-  print("zryte-cli: Tip: Press the ESCAPE key to stop playback")
+  print("zryte-cli: Tip: Press ESCAPE to stop playback")
   print(f"zryte-cli: Now streaming music: {field_title}")
 
   # Initialize VLC instance and play the music URL
   player = vlc.MediaPlayer(field_url)
   player.play()
-
-  # Initialize key listener and wait for it to be terminated when ESCAPE key is pressed
-  # Note that if this listener gets terminated, the playback also gets interrupted
-  with Listener(on_press=stream_key_pressed, on_release=stream_key_released) as listener:
-    listener.join()
+  
+  # Wait until the player's state is stopped
+  #
+  # While waiting, we can listen for certain keystrokes
+  # for controlling the playback, quite useful right?
+  while player.get_state() != vlc.State.Stopped:
+    try:
+      keystroke = readkey().lower()
+    except:
+      continue
+    match keystroke:
+      case key.ESC:
+        player.stop()
+  
+  # Once the player is in stopped state, release it.
+  print("zryte-cli: Stream ended")
+  player.release()
 
 
 def main():
