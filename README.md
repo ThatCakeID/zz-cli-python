@@ -26,6 +26,7 @@ $ zryte-cli search <name>
 ```
 ## Requirements
 - Python 3.10 or greater
+- VLC media player
 
 ### Dependencies
 Use `requirements.txt` to install required dependencies:

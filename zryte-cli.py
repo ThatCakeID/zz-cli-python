@@ -1,7 +1,6 @@
 import argparse
 import requests
 import tabulate
-import vlc
 
 
 from readchar import readkey, key
@@ -66,6 +65,12 @@ def list(params: dict = { 'pageSize': 512 }, prefix: str = None):
 
 def stream(id):
   global endpoints, firestore
+  
+  try:
+    import vlc
+  except:
+    print("zryte-cli: error: Failed to import VLC module, ensure it's installed.")
+    return
 
   # Send a GET request to Firestore service endpoints
   request_url = construct_final_endpoint(endpoints['firestore'], firestore['project'], firestore['database'])
