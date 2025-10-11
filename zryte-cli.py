@@ -19,7 +19,7 @@ def construct_final_endpoint(endpoint, project, db):
   return f"{endpoint}/projects/{project}/databases/{db}"
 
 
-def list(params: dict = { 'pageSize': 512 }, prefix: str = None):
+def list(params: dict = { 'pageSize': 512 }, keyword: str = None):
   global endpoints, firestore
 
   # Send a GET request to Firestore service endpoints
@@ -43,9 +43,8 @@ def list(params: dict = { 'pageSize': 512 }, prefix: str = None):
     document_id = document['name'].split('/')[-1]
     document_title = document['fields']['title']['stringValue']
 
-    if prefix is not None:
-      if not document_title.lower().startswith(prefix):
-        continue
+    if keyword is not None and keyword not in document_title.lower():
+      continue
     
     rows_id.append(document_id)
     rows_title.append(document_title)
@@ -155,7 +154,7 @@ def main():
       stream(id=args.id)
       pass
     case 'search':
-      list(prefix=args.name)
+      list(keyword=args.name)
     case 'config':
       # TODO: config(key, value, ...) function here
       print("zryte-cli: warn: The config subcommand is not yet implemented")
